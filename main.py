@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Response, Depends
+from fastapi import FastAPI, HTTPException, Response, Depends, File, UploadFile
 from authx import AuthX, AuthXConfig
 from pydantic import BaseModel
 from dotenv import load_dotenv
@@ -33,3 +33,11 @@ def login(credentials: UserLoginSchema, res: Response):
 @app.get("/protected-route", dependencies=[Depends(security.access_token_required)])
 def getmyinfo():
     return {"data": "my info"}
+
+
+@app.post("/files")
+async def upload_file(uploaded_file: UploadFile):
+    file = uploaded_file.file
+    filename = uploaded_file.filename
+    with open(filename, "wb") as f:
+        f.write(file.read())
