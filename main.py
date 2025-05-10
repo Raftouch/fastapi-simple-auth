@@ -30,14 +30,23 @@ def login(credentials: UserLoginSchema, res: Response):
     raise HTTPException(status_code=401, detail="Wrong credentials")
 
 
-@app.get("/protected-route", dependencies=[Depends(security.access_token_required)])
+@app.get("/protected-route", dependencies=[Depends(security.access_token_required)], tags=["Protected routes"])
 def getmyinfo():
     return {"data": "my info"}
 
 
-@app.post("/files")
+@app.post("/single_file", tags=["Files"])
 async def upload_file(uploaded_file: UploadFile):
     file = uploaded_file.file
     filename = uploaded_file.filename
     with open(filename, "wb") as f:
         f.write(file.read())
+
+
+@app.post("/multiple_files", tags=["Files"], summary="Upload multiple files")
+async def upload_file(uploaded_files: list[UploadFile]):
+    for uploaded_file in uploaded_files:
+        file = uploaded_file.file
+        filename = uploaded_file.filename
+        with open(filename, "wb") as f:
+            f.write(file.read())
